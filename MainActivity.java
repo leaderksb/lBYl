@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static int BUF_SIZE = 1024;
     static final int SMS_RECEIVE_PERMISSON=1;
+    static final int CALL_RECEIVE_PERMISSON=1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,10 +217,8 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        // 문자
         switch (requestCode) {
-            case SMS_RECEIVE_PERMISSON:
+            case SMS_RECEIVE_PERMISSON:  // 문자
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), "SMS권한 승인함", Toast.LENGTH_SHORT).show();
                 } else {
@@ -229,23 +228,20 @@ public class MainActivity extends AppCompatActivity {
                     android.os.Process.killProcess(android.os.Process.myPid());	 // 앱 프로세스 종료
                 }
                 break;
-        }
-
-        // 전화
-        if (requestCode == 1000) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:01074626013")); // Add Check Permission
-                Toast.makeText(getApplicationContext(), "CALL권한 승인함", Toast.LENGTH_SHORT).show();
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    startActivity(intent);
+            case CALL_RECEIVE_PERMISSON:  // 전화
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:01074626013")); // Add Check Permission
+                    Toast.makeText(getApplicationContext(), "CALL권한 승인함", Toast.LENGTH_SHORT).show();
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        startActivity(intent);
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "CALL권한 거부함", Toast.LENGTH_SHORT).show();
+                    moveTaskToBack(true);  // 태스크를 백그라운드로 이동
+                    finishAndRemoveTask();  // 액티비티 종료 + 태스크 리스트에서 지우기
+                    android.os.Process.killProcess(android.os.Process.myPid());	 // 앱 프로세스 종료
                 }
-            } else {
-                Toast.makeText(MainActivity.this, "CALL권한 거부함", Toast.LENGTH_SHORT).show();
-                moveTaskToBack(true);  // 태스크를 백그라운드로 이동
-                finishAndRemoveTask();  // 액티비티 종료 + 태스크 리스트에서 지우기
-                android.os.Process.killProcess(android.os.Process.myPid());	 // 앱 프로세스 종료
-            }
+                break;
         }
     }
-
 }
